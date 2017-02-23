@@ -10,7 +10,7 @@ for (item in jenkins.model.Jenkins.getInstance().getAllItems(hudson.model.FreeSt
 		// Get the target elements to transform
 		println("Found job [" + item.getFullName() + "]")
 		publisher = item.getPublishersList().find{ it.getClass() =~ pluginName }
-    variableList = publisher.variables
+		variableList = publisher.variables
 
 		// For each element in the variable list
 		for (var in varsList) {
@@ -23,6 +23,6 @@ for (item in jenkins.model.Jenkins.getInstance().getAllItems(hudson.model.FreeSt
 		println "Job configuration saved"
 		println()
 
-  }
+	}
 
 }

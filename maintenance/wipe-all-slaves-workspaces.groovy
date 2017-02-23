@@ -46,45 +46,45 @@ println()
 println("Deleting all jobs workspaces in all slaves")
 for (job in Hudson.instance.items) {
 
-		jobName = job.getFullDisplayName()
-		println(" - Job [" + jobName + "]")
+	jobName = job.getFullDisplayName()
+	println(" - Job [" + jobName + "]")
 
-    // For each node
-		for (node in hudson.getNodes()) {
+	// For each node
+	for (node in hudson.getNodes()) {
 
-			// Check the job is not building
-			if (job.getClass() != org.jenkinsci.plugins.workflow.multibranch.WorkflowMultiBranchProject && !job.isBuilding()) {
+		// Check the job is not building
+		if (job.getClass() != org.jenkinsci.plugins.workflow.multibranch.WorkflowMultiBranchProject && !job.isBuilding()) {
 
-				// Filter by node
-				if (targetSlave == "" || targetSlave == node.getDisplayName()) {
+			// Filter by node
+			if (targetSlave == "" || targetSlave == node.getDisplayName()) {
 
-					// Obtain workspace path in current node
-					customWorkspace = job.getCustomWorkspace()
-					if (customWorkspace == null) {
-						workspacePath = node.getWorkspaceFor(job)
-					} else {
-						workspacePath = node.getRootPath().child(customWorkspace)
-					}
-
-					// Get rid of the workspace
-					pathAsString = workspacePath.getRemote()
-					if (workspacePath.exists()){
-						workspacePath.deleteRecursive()
-
-						println("    - Node [" + node.getDisplayName() + "] - Workspace deleted [" + pathAsString + "]")
-					} else {
-						println("    - Node [" + node.getDisplayName() + "] - Nothing to delete")
-					}
-
+				// Obtain workspace path in current node
+				customWorkspace = job.getCustomWorkspace()
+				if (customWorkspace == null) {
+					workspacePath = node.getWorkspaceFor(job)
 				} else {
-					println(" - Job running skipped [" + jobName + "]")
+					workspacePath = node.getRootPath().child(customWorkspace)
+				}
+
+				// Get rid of the workspace
+				pathAsString = workspacePath.getRemote()
+				if (workspacePath.exists()){
+					workspacePath.deleteRecursive()
+
+					println("    - Node [" + node.getDisplayName() + "] - Workspace deleted [" + pathAsString + "]")
+				} else {
+					println("    - Node [" + node.getDisplayName() + "] - Nothing to delete")
 				}
 
 			} else {
-				println("    - Node [" + node.getDisplayName() + "] - Skipped")
+				println(" - Job running skipped [" + jobName + "]")
 			}
 
+		} else {
+			println("    - Node [" + node.getDisplayName() + "] - Skipped")
 		}
+
+	}
 
 }
 println()
