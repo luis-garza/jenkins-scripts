@@ -2,7 +2,7 @@ import hudson.model.*
 import jenkins.model.*
 
 def originalExecutors = [:]
-Hudson hudson = Hudson.getInstance()  
+Hudson hudson = Hudson.getInstance()
 
 // Get parameters
 def targetSlave = build.buildVariableResolver.resolve("targetSlave")
@@ -46,45 +46,45 @@ println()
 println("Deleting all jobs workspaces in all slaves")
 for (job in Hudson.instance.items) {
 
-	// Check the job is not building
-	jobName = job.getFullDisplayName()
-	if (job.getClass() != org.jenkinsci.plugins.workflow.multibranch.WorkflowMultiBranchProject && !job.isBuilding()) {
-
-		// Check the job has a customized workspace
+		jobName = job.getFullDisplayName()
 		println(" - Job [" + jobName + "]")
-		customWorkspace = job.getCustomWorkspace()
 
-	    // For each node
+    // For each node
 		for (node in hudson.getNodes()) {
 
-			if (targetSlave == "" || targetSlave == node.getDisplayName()) {
-	
-				// Obtain workspace path in current node
-				if (customWorkspace == null) {
-					workspacePath = node.getWorkspaceFor(job)
+			// Check the job is not building
+			if (job.getClass() != org.jenkinsci.plugins.workflow.multibranch.WorkflowMultiBranchProject && !job.isBuilding()) {
+
+				// Filter by node
+				if (targetSlave == "" || targetSlave == node.getDisplayName()) {
+
+					// Obtain workspace path in current node
+					customWorkspace = job.getCustomWorkspace()
+					if (customWorkspace == null) {
+						workspacePath = node.getWorkspaceFor(job)
+					} else {
+						workspacePath = node.getRootPath().child(customWorkspace)
+					}
+
+					// Get rid of the workspace
+					pathAsString = workspacePath.getRemote()
+					if (workspacePath.exists()){
+						workspacePath.deleteRecursive()
+
+						println("    - Node [" + node.getDisplayName() + "] - Workspace deleted [" + pathAsString + "]")
+					} else {
+						println("    - Node [" + node.getDisplayName() + "] - Nothing to delete")
+					}
+
 				} else {
-					workspacePath = node.getRootPath().child(customWorkspace)
+					println(" - Job running skipped [" + jobName + "]")
 				}
 
-				// Get rid of the workspace
-				pathAsString = workspacePath.getRemote()
-				if (workspacePath.exists()){
-					workspacePath.deleteRecursive()
-
-					println("    - Node [" + node.getDisplayName() + "] - Workspace deleted [" + pathAsString + "]")
-				} else {
-					println("    - Node [" + node.getDisplayName() + "] - Nothing to delete")
-				}
-			
 			} else {
 				println("    - Node [" + node.getDisplayName() + "] - Skipped")
 			}
 
 		}
-
-    } else {
-		println(" - Job running skipped [" + jobName + "]")
-	}
 
 }
 println()
@@ -99,7 +99,6 @@ for (Slave slave : hudson.getSlaves()) {
 hudson.setNodes(hudson.getNodes())
 hudson.save()
 println()
-
 
 // Show final number of executors per node
 println("Final executors per node")
